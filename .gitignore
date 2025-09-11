@@ -1,0 +1,27 @@
+# IDE
+.vs/
+*.sln
+*.pyproj
+*.user
+*.suo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Dataset grande (opcional, si es muy pesado)
+# myData/
+
+# Entornos virtuales
+.env
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store
