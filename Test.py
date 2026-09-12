@@ -4,19 +4,19 @@ from keras.models import load_model
  
 #############################################
  
-frameWidth= 1280        # RESOLUCION
+frameWidth= 1280        # RESOLUTION
 frameHeight = 720
 brightness = 180
-threshold = 0.75         # LIMITE DE PROBABILIDAD
+threshold = 0.75         # PROBABILITY THRESHOLD
 font = cv2.FONT_HERSHEY_SIMPLEX
 ##############################################
  
-# SETUP DE LA CAMARA
+# CAMERA SETUP
 cap = cv2.VideoCapture(0)
 cap.set(10, frameWidth)#3
 cap.set(24, frameHeight)#4
 cap.set(50, brightness)#10
-# IMPORTAR EL MODELO ENTRENADO
+# IMPORT THE TRAINED MODEL
 model = load_model('my_model.h5')
 
  
@@ -78,10 +78,10 @@ def getCalssName(classNo):
  
 while True:
  
-# LEER IMAGEN
+# READ IMAGE
   success, imgOrignal = cap.read()
  
-# PROCESAR IMAGEN
+# PROCESS IMAGE
   img = np.asarray(imgOrignal)
   img = cv2.resize(img, (32, 32))
   img = preprocessing(img)
@@ -89,7 +89,7 @@ while True:
   img = img.reshape(1, 32, 32, 1)
   cv2.putText(imgOrignal, "CLASS: " , (20, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
   cv2.putText(imgOrignal, "PROBABILITY: ", (20, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
-# PREDECIR LA IMAGEN
+# PREDICT THE IMAGE
   predictions = model.predict(img)
   classIndex = classIndex = np.argmax(predictions, axis=-1) #model.predict_classes(img)
   probabilityValue =np.amax(predictions)

@@ -10,7 +10,7 @@ while True:
     ret, frame = cam.read()
 
     if not ret:
-        print("fallo")
+        print("Failed to read frame")
         break
     
     cv2.imshow("test",frame)
@@ -18,7 +18,7 @@ while True:
     k=cv2.waitKey(1)
 
     if k%256 == 27:
-        print("escapando")
+        print("Exiting")
         break
 
     elif k%256 == 32:

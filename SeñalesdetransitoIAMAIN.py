@@ -15,20 +15,20 @@ import random
 from keras.preprocessing.image import ImageDataGenerator
 
 
-################# Parametros #####################
+################# Parameters #####################
 
-path = 'myData'  # archivo con todas las clases
-labelFile = 'labels.csv'  # archivo con todos los nombres de las clases
-batch_size_val = 50  # cuantos procesar al mismo tiempo
+path = 'myData'  # folder with all the classes
+labelFile = 'labels.csv'  # file with all the class names
+batch_size_val = 50  # how many to process at a time
 steps_per_epoch_val = 20000
-epochs_val = 20 #por cuantas iteraciones pasara
+epochs_val = 20  # number of training iterations
 imageDimesions = (32, 32, 3)
-testRatio = 0.2  # usa el 20% de las imagenes para el testeo
-validationRatio = 0.2  # el restante despues de quitar el 20% se usara para validacion
+testRatio = 0.2  # use 20% of the images for testing
+validationRatio = 0.2  # the remainder after removing the 20% is used for validation
 ###################################################
 
 
-############################### Importo las imagenes
+############################### Import the images
 count = 0
 images = []
 classNo = []
@@ -48,21 +48,21 @@ print(" ")
 images = np.array(images)
 classNo = np.array(classNo)
 
-############################### Split Datos
+############################### Split the data
 X_train, X_test, y_train, y_test = train_test_split(images, classNo, test_size=testRatio)
 X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=validationRatio)
 steps_per_epoch_val = len(X_train)//batch_size_val
 validation_steps = len(X_test)//batch_size_val
-# X_train = EL ARRAY DE IMAGENES PARA ENTRENAR
-# y_train = LAS ID DE LAS CLASES CORRESPONDIENTES
+# X_train = ARRAY OF IMAGES USED FOR TRAINING
+# y_train = IDS OF THE CORRESPONDING CLASSES
 
 
 
-############################### LEER EL ARCHIVO CSV
+############################### READ THE CSV FILE
 data = pd.read_csv(labelFile)
 print("data shape ", data.shape, type(data))
 
-############################### MOSTRAR IMAGENES DE EJEMPLO DE TODAS LAS CLASES
+############################### SHOW SAMPLE IMAGES FROM ALL CLASSES
 num_of_samples = []
 cols = 5
 num_classes = noOfClasses
@@ -77,17 +77,17 @@ for i in range(cols):
             axs[j][i].set_title(str(j) + "-" + row["Name"])
             num_of_samples.append(len(x_selected))
 
-############################### MOSTRAR UN GRAFICO DE BARRAS MOSTRANDO EL NUMERO DE ELEMENTOS POR CADA CATEGORIA
+############################### SHOW A BAR CHART WITH THE NUMBER OF ELEMENTS PER CATEGORY
 print(num_of_samples)
 plt.figure(figsize=(12, 4))
 plt.bar(range(0, num_classes), num_of_samples)
-plt.title("Distribucion del dataset de entrenamiento")
-plt.xlabel("Numero de clases")
-plt.ylabel("Numero de imagenes")
+plt.title("Training dataset distribution")
+plt.xlabel("Number of classes")
+plt.ylabel("Number of images")
 plt.show()
 
 
-############################### PREPROCESAMIENTO DE IMAGENES
+############################### IMAGE PREPROCESSING
 
 def grayscale(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -100,36 +100,36 @@ def equalize(img):
 
 
 def preprocessing(img):
-    img = grayscale(img)  # CONVERTIR A ESCALA DE GRISES
-    img = equalize(img)  # STANDARDIZAR LA ILUMINACION EN LA IMAGEN
-    img = img / 255  # NORMALLIZAR LOS VALORES ENTRE 0 Y 1 EN VEZ DE 0 Y 255
+    img = grayscale(img)  # CONVERT TO GRAYSCALE
+    img = equalize(img)  # STANDARDIZE THE LIGHTING IN THE IMAGE
+    img = img / 255  # NORMALIZE THE VALUES BETWEEN 0 AND 1 INSTEAD OF 0 AND 255
     return img
 
 
-X_train = np.array(list(map(preprocessing, X_train)))  # Iterar y preprocesar las imagenes
+X_train = np.array(list(map(preprocessing, X_train)))  # Iterate and preprocess the images
 X_validation = np.array(list(map(preprocessing, X_validation)))
 X_test = np.array(list(map(preprocessing, X_test)))
 cv2.imshow("GrayScale Images",
-           X_train[random.randint(0, len(X_train) - 1)])  # Revisa si el entrenamiento esta bien hecho
+           X_train[random.randint(0, len(X_train) - 1)])  # Check that the processed images look correct
 
-############################### ANADIR UNA PROFUNDIDAD DE 1
+############################### ADD A DEPTH OF 1
 X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2], 1)
 X_validation = X_validation.reshape(X_validation.shape[0], X_validation.shape[1], X_validation.shape[2], 1)
 X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2], 1)
 
-############################### AUMENTAR IMAGENES PARA HACERAS GENERICAS
+############################### AUGMENT IMAGES TO MAKE THEM MORE GENERIC
 dataGen = ImageDataGenerator(width_shift_range=0.1,
                              # 0.1 = 10%     IF MORE THAN 1 E.G 10 THEN IT REFFERS TO NO. OF  PIXELS EG 10 PIXELS
                              height_shift_range=0.1,
                              zoom_range=0.2,  # 0.2 MEANS CAN GO FROM 0.8 TO 1.2
-                             shear_range=0.1,  # MAGNITUD DEL ANGULO DE CORTE
-                             rotation_range=10)  # GRADOS
+                             shear_range=0.1,  # SHEAR ANGLE MAGNITUDE
+                             rotation_range=10)  # DEGREES
 dataGen.fit(X_train)
 batches = dataGen.flow(X_train, y_train,
-                       batch_size=20)  # Sicita a el generadpr de datos para dar el tamañio de lotes
+                       batch_size=20)  # Ask the data generator for batches of that size
 X_batch, y_batch = next(batches)
 
-# mostrar ejemplos de imagenes aumentadas
+# show examples of augmented images
 fig, axs = plt.subplots(1, 15, figsize=(20, 5))
 fig.tight_layout()
 
@@ -143,17 +143,17 @@ y_validation = to_categorical(y_validation, noOfClasses)
 y_test = to_categorical(y_test, noOfClasses)
 
 
-############################### Modelo CNN
+############################### CNN model
 def myModel():
     no_Of_Filters = 60
-    size_of_Filter = (5, 5)  # Kernel que mueve la imagen alrededor para obtener las caracteristicas
+    size_of_Filter = (5, 5)  # Kernel that moves across the image to extract features
     
     size_of_Filter2 = (3, 3)
-    size_of_pool = (2, 2)  #Reduce la escala de el mapa de razgos para generalizar mas y reducir sobreajustes
-    no_Of_Nodes = 500  # NUMERO. DE NODOS EN CAPAS OCULTAS
+    size_of_pool = (2, 2)  # Downsamples the feature map to generalize better and reduce overfitting
+    no_Of_Nodes = 500  # NUMBER OF NODES IN THE HIDDEN LAYERS
     model = Sequential()
     model.add((Conv2D(no_Of_Filters, size_of_Filter, input_shape=(imageDimesions[0], imageDimesions[1], 1),
-                      activation='relu')))  # Añadiendo mas capas convolucionales = Menos rasgos pero incrementa la presicion
+                      activation='relu')))  # Adding more convolutional layers = fewer features but higher precision
     model.add(MaxPooling2D(pool_size=size_of_pool))  # DOES NOT EFFECT THE DEPTH/NO OF FILTERS
 
     model.add((Conv2D(no_Of_Filters // 2, size_of_Filter2, activation='relu')))
@@ -163,14 +163,14 @@ def myModel():
 
     model.add(Flatten())
     model.add(Dense(no_Of_Nodes, activation='relu'))
-    model.add(Dropout(0.5))  # Nodos de entrada que se caen con cada actualizacion, 1 todos, 0 ninguno
-    model.add(Dense(noOfClasses, activation='softmax'))  # Capa de salida
+    model.add(Dropout(0.5))  # Input nodes dropped on each update, 1 all of them, 0 none
+    model.add(Dense(noOfClasses, activation='softmax'))  # Output layer
     # COMPILE MODEL
     model.compile(Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
 
-############################### Entrenamiento
+############################### Training
 model = myModel()
 print(model.summary())
 history = model.fit_generator(dataGen.flow(X_train, y_train, batch_size=batch_size_val),
@@ -196,7 +196,7 @@ print('Test Score:', score[0])
 print('Test Accuracy:', score[1])
 
 
-model.save('my_model.h5')  # crea un archivo hdf5 'my_model.h5'
+model.save('my_model.h5')  # creates an hdf5 file 'my_model.h5'
 model = load_model('my_model.h5')
 
 cv2.waitKey(0)
